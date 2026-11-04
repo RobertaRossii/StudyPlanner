@@ -6,7 +6,10 @@ enum class Priority {
     HIGH
 }
 
-data class Task (val id: Int,
-                 val title: String,
-                 val isCompleted: Boolean = false,
-                 val priority: Priority = Priority.MEDIUM)
+data class Task(
+    val id: Int,
+    val title: String,
+    val isCompleted: Boolean = false,
+    val priority: Priority = Priority.MEDIUM,
+    val dueDate: String = ""
+)

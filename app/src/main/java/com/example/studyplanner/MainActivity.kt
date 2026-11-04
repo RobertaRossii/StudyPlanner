@@ -116,6 +116,7 @@ fun TaskDetailScreen(
     title: String,
     isCompleted: Boolean,
     priority: String,
+    dueDate: String,
     onBack: () -> Unit,
     onToggle: (Boolean) -> Unit
 ) {
@@ -134,17 +135,20 @@ fun TaskDetailScreen(
         Text("Title: $title")
         Text("Completed: ${if (completed) "Yes" else "No"}")
         Text("Priority: $priority")
-    }
-    Button(
-        onClick = {
-            completed = !completed
-            onToggle(completed)
+        Text("Due date: $dueDate")
+
+        Button(
+            onClick = {
+                completed = !completed
+                onToggle(completed)
+            }
+        ) {
+            Text(if (completed) "Mark as pending" else "Mark as completed")
         }
-    ) {
-        Text(if (completed) "Mark as pending" else "Mark as completed")
-    }
-    OutlinedButton(onClick = onBack) {
-        Text("Back")
+        OutlinedButton(onClick = onBack) {
+            Text("Back")
+        }
+
     }
 }
 @Composable
@@ -153,9 +157,9 @@ fun StudyPlannerApp() {
     var tasks by remember {
         mutableStateOf(
             listOf(
-                Task(1, "Study for my exam", false, Priority.HIGH),
-                Task(2, "Buy groceries", true, Priority.MEDIUM),
-                Task(3, "Read a book", false, Priority.LOW)
+                Task(1, "Study for my exam", false, Priority.HIGH, "10/11/2026"),
+                Task(2, "Buy groceries", true, Priority.MEDIUM, "12/11/2026"),
+                Task(3, "Read a book", false, Priority.LOW, "15/11/2026")
             )
         )
     }
@@ -168,30 +172,33 @@ fun StudyPlannerApp() {
                 tasks = tasks,
                 onTaskClick = { task ->
                     navController.navigate(
-                        "taskDetail/${task.id}/${Uri.encode(task.title)}/${task.isCompleted}/${task.priority.name}"
+                        "taskDetail/${task.id}/${Uri.encode(task.title)}/${task.isCompleted}/${task.priority.name}/${Uri.encode(task.dueDate)}"
                     )
                 }
             )
         }
         composable(
-            route = "taskDetail/{taskId}/{title}/{isCompleted}/{priority}",
+            route = "taskDetail/{taskId}/{title}/{isCompleted}/{priority}/{dueDate}",
             arguments = listOf(
                 navArgument("taskId") { type = NavType.IntType },
                 navArgument("title") { type = NavType.StringType },
                 navArgument("isCompleted") { type = NavType.BoolType },
-                navArgument("priority") { type = NavType.StringType }
+                navArgument("priority") { type = NavType.StringType },
+                navArgument("dueDate") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val taskId = backStackEntry.arguments?.getInt("taskId") ?: 0
             val title = backStackEntry.arguments?.getString("title") ?: ""
             val isCompleted = backStackEntry.arguments?.getBoolean("isCompleted") ?: false
             val priority = backStackEntry.arguments?.getString("priority") ?: "MEDIUM"
+            val dueDate = backStackEntry.arguments?.getString("dueDate") ?: ""
 
             TaskDetailScreen(
                 taskId = taskId,
                 title = title,
                 isCompleted = isCompleted,
                 priority = priority,
+                dueDate = dueDate,
                 onBack = { navController.popBackStack() },
                 onToggle = { newValue ->
                     tasks = tasks.map { task ->
